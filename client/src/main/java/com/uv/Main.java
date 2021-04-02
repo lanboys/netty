@@ -3,6 +3,9 @@ package com.uv;
 import com.uv.client.NettyClient;
 import com.uv.protocol.RpcRequest;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.UUID;
 
 import io.netty.channel.Channel;
@@ -24,5 +27,19 @@ public class Main {
     request.setData("client.message");
     //channel对象可保存在map中，供其它地方发送消息
     channel.writeAndFlush(request);
+
+    try {
+      BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
+      while (true) {
+        String str = bufferedReader.readLine();
+        RpcRequest request1 = new RpcRequest();
+        request1.setId(UUID.randomUUID().toString());
+        request1.setData(str);
+        channel.writeAndFlush(request1);
+        System.out.println("已发送数据：" + request1);
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 }
