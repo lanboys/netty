@@ -13,7 +13,6 @@ import com.uv.protocol.RpcResponse;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
@@ -49,21 +48,16 @@ public class NettyClient {
           }
         });
     //发起异步连接请求，绑定连接端口和host信息
+    //sync() 等待异步连接的结果。
     final ChannelFuture future = b.connect(host, port).sync();
 
-    future.addListener(new ChannelFutureListener() {
-
-      @Override
-      public void operationComplete(ChannelFuture arg0) throws Exception {
-        if (future.isSuccess()) {
-          System.out.println("连接服务器成功");
-        } else {
-          System.out.println("连接服务器失败");
-          future.cause().printStackTrace();
-          group.shutdownGracefully(); //关闭线程组
-        }
-      }
-    });
+    if (future.isSuccess()) {
+      System.out.println("连接服务器成功");
+    } else {
+      System.out.println("连接服务器失败");
+      future.cause().printStackTrace();
+      group.shutdownGracefully(); //关闭线程组
+    }
 
     this.channel = future.channel();
   }
